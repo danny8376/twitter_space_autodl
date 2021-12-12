@@ -7,6 +7,8 @@ authors:
 targets:
   twitter_space_autodl:
     main: src/twitter_space_autodl.cr
+  twitter_space_dl:
+    main: src/twitter_space_dl.cr
 
 dependencies:
   connect-proxy:

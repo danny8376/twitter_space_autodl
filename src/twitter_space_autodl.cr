@@ -1,21 +1,13 @@
 require "log"
 
 require "./config"
+require "./utils"
 require "./twitter"
 
 PERIOD = 10.seconds
 
 CONFIG = Config.from_yaml(File.read("./config.yml"))
-
-def sanitize_filename(s)
-  s.gsub(/(?:[\/<>:"\|\\?\*]|[\s.]$)/) { "#" }
-end
-
-def filename(username, date, title)
-  path = "#{CONFIG.output_folder}/#{sanitize_filename username}"
-  Dir.mkdir_p path
-  "#{path}/#{date}-#{sanitize_filename title}-part2.aac"
-end
+Utils.output_folder = CONFIG.output_folder
 
 Log.setup_from_env
 Log.info { "Starting..." }
@@ -39,7 +31,7 @@ loop do
       username = twitter.get_username space["creator_twitter_user_id"].as_i64.to_s
       title = space["title"]?.try(&.as_s) || "twitter-space"
       date = space["start"].as_s[0...16].gsub(/[-:]/){}.gsub("T"){"-"}
-      fn = filename(username, date, title)
+      fn = Utils.filename(username, date, title)
       if !processing.includes?(id) && !File.exists?(fn)
         Log.info { "Downloading #{date} #{title} By #{username}" }
         playlist = twitter.get_playlist id
@@ -52,7 +44,7 @@ loop do
             sleep 1.second
           end
           tmpfn = "#{fn}.tmp.aac"
-          process = Process.new "ffmpeg", {"-y", "-hide_banner",  "-loglevel", "error", "-i", playlist, "-c", "copy", tmpfn}, error: Process::Redirect::Inherit
+          process = Process.new "ffmpeg", {"-y", "-hide_banner", "-loglevel", "error", "-i", playlist, "-c", "copy", tmpfn}, error: Process::Redirect::Inherit
           status = process.wait
           Log.debug { status }
           if File.exists? tmpfn
