@@ -12,6 +12,7 @@ class Twitter
   end
 
   @guest_token : String?
+  @guest_token_time = Time.utc
 
   def initialize(token, secret, app_key, app_secret, proxy_host = "", proxy_port = 0)
     @client_index = ConnectProxy::HTTPClient.new("twitter.com", tls: true)
@@ -37,12 +38,18 @@ class Twitter
       res = @client_index.get "/"
       match = /((?<=gt\=)\d{19})/.match res.body
       if match
+        @guest_token_time = Time.utc
         @guest_token = match[1]
       else
         guest_token
       end
     else
-      @guest_token.not_nil!
+      if Time.utc - @guest_token_time > 1.hour
+        @guest_token = nil
+        guest_token
+      else
+        @guest_token.not_nil!
+      end
     end
   end
 
