@@ -37,7 +37,7 @@ class Twitter
       res = @client_index.get "/"
       match = /((?<=gt\=)\d{19})/.match res.body
       if match
-        @guest_token = match[0]
+        @guest_token = match[1]
       else
         guest_token
       end
