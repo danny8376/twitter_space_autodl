@@ -1,0 +1,17 @@
+name: twitter_space_autodl
+version: 0.1.0
+
+authors:
+  - DannyAAM <danny@saru.moe>
+
+targets:
+  twitter_space_autodl:
+    main: src/twitter_space_autodl.cr
+
+dependencies:
+  connect-proxy:
+    github: spider-gazelle/connect-proxy
+
+crystal: 1.1.1
+
+license: MIT

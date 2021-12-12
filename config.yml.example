@@ -1,0 +1,8 @@
+twitter:
+  user_token: 
+  user_token_secret: 
+  app_key: 
+  app_secret: 
+  proxy_host: # EMPTY TO DISABLE (OR USE ENV)
+  proxy_port: 0
+output_folder: /path/to/output
