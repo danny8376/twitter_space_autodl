@@ -7,6 +7,8 @@ require "./twitter"
 CONFIG = Config.from_yaml(File.read("./config.yml"))
 Utils.output_folder = CONFIG.output_folder
 
+Dir.cd(Process.executable_path || ".")
+
 Log.setup_from_env
 Log.info { "Starting..." }
 
