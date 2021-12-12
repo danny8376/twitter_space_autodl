@@ -42,8 +42,8 @@ loop do
       fn = filename(username, date, title)
       if !processing.includes?(id) && !File.exists?(fn)
         Log.info { "Downloading #{date} #{title} By #{username}" }
-        processing.push id
         playlist = twitter.get_playlist id
+        processing.push id
         spawn do
           cnt = 0
           until HTTP::Client.get(playlist).success?
@@ -73,6 +73,8 @@ loop do
         end
       end
     end
+  rescue ex : Exception
+    Log.error { ex }
   end
   sleep PERIOD
 rescue ex : Twitter::RateLimited
