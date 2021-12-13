@@ -4,10 +4,8 @@ require "./config"
 require "./utils"
 require "./twitter"
 
-CONFIG = Config.from_yaml(File.read("./config.yml"))
+CONFIG = Config.from_yaml(File.read("#{Path[Process.executable_path || "."].dirname}/config.yml"))
 Utils.output_folder = CONFIG.output_folder
-
-Dir.cd(Process.executable_path || ".")
 
 Log.setup_from_env
 Log.info { "Starting..." }
