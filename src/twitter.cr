@@ -17,12 +17,15 @@ class Twitter
   def initialize(token, secret, app_key, app_secret, proxy_host = "", proxy_port = 0)
     @client_index = ConnectProxy::HTTPClient.new("twitter.com", tls: true)
     @client_api = ConnectProxy::HTTPClient.new("api.twitter.com", tls: true)
+    @client_api_guest = ConnectProxy::HTTPClient.new("api.twitter.com", tls: true)
     # disable compression here, twitter sometimes breaks crystal's umcompression...
     @client_api.compress = false
+    @client_api_guest.compress = false
     unless proxy_host.empty?
       proxy = ConnectProxy.new(proxy_host, proxy_port)
       @client_index.set_proxy proxy
       @client_api.set_proxy proxy
+      @client_api_guest.set_proxy proxy
     end
     OAuth.authenticate(@client_api, token, secret, app_key, app_secret)
 
@@ -35,14 +38,11 @@ class Twitter
 
   def guest_token
     if @guest_token.nil?
-      res = @client_index.get "/"
-      match = /((?<=gt\=)\d{19})/.match res.body
-      if match
-        @guest_token_time = Time.utc
-        @guest_token = match[1]
-      else
-        guest_token
-      end
+      headers = HTTP::Headers{
+        "authorization" => "Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs=1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA",
+      }
+      res = @client_api_guest.post "/1.1/guest/activate.json", headers: headers
+      @guest_token = JSON.parse(res.body)["guest_token"].as_s
     else
       if Time.utc - @guest_token_time > 1.hour
         @guest_token = nil
